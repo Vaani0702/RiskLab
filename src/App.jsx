@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { AuthProvider } from './context/AuthContext.jsx';
 import Navbar from './components/Navbar.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import GroundZeroPage from './pages/GroundZeroPage.jsx';
@@ -7,100 +8,115 @@ import StockPickerPage from './pages/StockPickerPage.jsx';
 import SimulatorPage from './pages/SimulatorPage.jsx';
 import LossMeterPage from './pages/LossMeterPage.jsx';
 import DebriefPage from './pages/DebriefPage.jsx';
+import LearnPage from './pages/LearnPage.jsx';
+import MarketsPage from './pages/MarketsPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 
-const ROUTES = {
-  LANDING:    'landing',
-  GROUND_ZERO:'groundzero',
-  FEAR_QUIZ:  'fearquiz',
-  STOCK_PICK: 'stockpick',
-  SIMULATOR:  'simulator',
-  LOSS_METER: 'lossmeter',
-  DEBRIEF:    'debrief',
-};
+// Top-level pages navigated via navbar
+const TOP_PAGES = ['home', 'simulator', 'learn', 'markets', 'profile'];
 
-function getStep(route) {
-  const map = {
-    [ROUTES.LANDING]:     0,
-    [ROUTES.GROUND_ZERO]: 1,
-    [ROUTES.FEAR_QUIZ]:   2,
-    [ROUTES.STOCK_PICK]:  3,
-    [ROUTES.SIMULATOR]:   4,
-    [ROUTES.LOSS_METER]:  4,
-    [ROUTES.DEBRIEF]:     5,
-  };
-  return map[route] ?? 0;
-}
+// Simulator sub-flow pages (not in navbar)
+const SIM_FLOW = ['groundzero', 'fearquiz', 'stockpick', 'simulate', 'lossmeter', 'debrief'];
 
-export default function App() {
-  const [route, setRoute] = useState(ROUTES.LANDING);
+function AppInner() {
+  const [history, setHistory] = useState(['home']);
+  const [idx, setIdx] = useState(0);
   const [profile, setProfile] = useState(null);
   const [stockId, setStockId] = useState(null);
   const [decision, setDecision] = useState(null);
-  const [quizScore, setQuizScore] = useState(null);
+  const [simHistory, setSimHistory] = useState([]);
 
-  const navigate = (r) => {
-    setRoute(r);
+  const page = history[idx];
+  const canGoBack = idx > 0;
+  const canGoForward = idx < history.length - 1;
+
+  const push = useCallback((p) => {
+    setHistory(prev => [...prev.slice(0, idx + 1), p]);
+    setIdx(i => i + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [idx]);
+
+  const goBack = () => { if (canGoBack) { setIdx(i => i - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+  const goForward = () => { if (canGoForward) { setIdx(i => i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+
+  // Navbar navigation — top level pages
+  const onNavigate = (p) => push(p);
+
+  // Simulator flow handlers
+  const startSimulator = (path) => {
+    if (path === 'zero') push('groundzero');
+    else if (path === 'scared') push('fearquiz');
+    else { setProfile('calculated'); push('stockpick'); }
   };
 
-  const handlePathSelect = (path) => {
-    if (path === 'zero') navigate(ROUTES.GROUND_ZERO);
-    else if (path === 'scared') navigate(ROUTES.FEAR_QUIZ);
-    else {
-      setProfile('calculated');
-      navigate(ROUTES.STOCK_PICK);
-    }
-  };
-
-  const handleGroundZeroComplete = () => navigate(ROUTES.FEAR_QUIZ);
-
-  const handleFearQuizComplete = (p, score) => {
-    setProfile(p);
-    setQuizScore(score);
-    navigate(ROUTES.STOCK_PICK);
-  };
-
-  const handleStockSelect = (sid) => {
-    setStockId(sid);
-    navigate(ROUTES.SIMULATOR);
-  };
-
-  const handleSimulatorComplete = (dec) => {
-    setDecision(dec || 'hold');
-    navigate(ROUTES.LOSS_METER);
-  };
-
-  const handleLossMeterComplete = () => navigate(ROUTES.DEBRIEF);
-
-  const handleRestart = () => {
-    setProfile(null);
-    setStockId(null);
-    setDecision(null);
-    setQuizScore(null);
-    navigate(ROUTES.LANDING);
-  };
+  const activePage = TOP_PAGES.includes(page) ? page : 'simulator';
 
   return (
     <>
       <div className="orb orb-1" />
       <div className="orb orb-2" />
-      <Navbar step={getStep(route)} />
 
-      {route === ROUTES.LANDING    && <LandingPage onSelectPath={handlePathSelect} />}
-      {route === ROUTES.GROUND_ZERO && <GroundZeroPage onComplete={handleGroundZeroComplete} />}
-      {route === ROUTES.FEAR_QUIZ  && <FearQuizPage onComplete={handleFearQuizComplete} />}
-      {route === ROUTES.STOCK_PICK && <StockPickerPage profile={profile} onSelect={handleStockSelect} />}
-      {route === ROUTES.SIMULATOR  && <SimulatorPage profile={profile} stockId={stockId} onComplete={handleSimulatorComplete} />}
-      {route === ROUTES.LOSS_METER && <LossMeterPage stockId={stockId} onComplete={handleLossMeterComplete} />}
-      {route === ROUTES.DEBRIEF    && (
-        <DebriefPage
-          profile={profile}
-          stockId={stockId}
-          decision={decision}
-          quizScore={quizScore || { correct: 10, total: 20 }}
-          onRestart={handleRestart}
-        />
-      )}
+      <Navbar
+        activePage={activePage}
+        onNavigate={onNavigate}
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        onBack={goBack}
+        onForward={goForward}
+      />
+
+      <div style={{ paddingTop: 62 }}>
+        {page === 'home' && (
+          <LandingPage onSelectPath={startSimulator} />
+        )}
+        {page === 'groundzero' && (
+          <GroundZeroPage onComplete={() => push('fearquiz')} />
+        )}
+        {page === 'fearquiz' && (
+          <FearQuizPage onComplete={(p) => { setProfile(p); push('stockpick'); }} />
+        )}
+        {page === 'stockpick' && (
+          <StockPickerPage profile={profile} onSelect={(sid) => { setStockId(sid); push('simulate'); }} />
+        )}
+        {page === 'simulate' && (
+          <SimulatorPage profile={profile} stockId={stockId} onComplete={(dec) => {
+            const d = dec || 'hold';
+            setDecision(d);
+            setSimHistory(prev => [...prev, {
+              stockId, profile, decision: d,
+              date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+            }]);
+            push('lossmeter');
+          }} />
+        )}
+        {page === 'lossmeter' && (
+          <LossMeterPage stockId={stockId} onComplete={() => push('debrief')} />
+        )}
+        {page === 'debrief' && (
+          <DebriefPage profile={profile} stockId={stockId} decision={decision}
+            onRestart={() => { setProfile(null); setStockId(null); setDecision(null); push('home'); }} />
+        )}
+        {page === 'simulator' && (
+          <LandingPage onSelectPath={startSimulator} />
+        )}
+        {page === 'learn' && (
+          <LearnPage onNavigate={onNavigate} />
+        )}
+        {page === 'markets' && (
+          <MarketsPage onNavigate={onNavigate} />
+        )}
+        {page === 'profile' && (
+          <ProfilePage simHistory={simHistory} onStartNew={() => push('home')} onNavigate={onNavigate} />
+        )}
+      </div>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }
