@@ -120,10 +120,3 @@ risklab/
 Built by **[Your Team Name]** for Finvasia Innovation Hackathon 2026
 - Chitkara University · CSE (AI) Department
 
----
-
-## Contact
-
-evolveai@chitkara.edu.in · Goyam Jain: 97815-31234
-
-⚠️ *This is a simulation tool for financial education. Not financial advice.*
