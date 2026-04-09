@@ -117,13 +117,8 @@ risklab/
 
 ## Team
 
-Built by **[Your Team Name]** for Finvasia Innovation Hackathon 2026
+Built by **[Bold Rupee]** for Finvasia Innovation Hackathon 2026
+- Vaani Singh 2410992911
+- Niyati Aggarwal 2410992825
 - Chitkara University · CSE (AI) Department
 
----
-
-## Contact
-
-evolveai@chitkara.edu.in · Goyam Jain: 97815-31234
-
-⚠️ *This is a simulation tool for financial education. Not financial advice.*
