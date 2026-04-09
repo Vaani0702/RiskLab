@@ -1,206 +1,234 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+const TICKER_ITEMS = [
+  { label: 'NFLX', value: '-76%', color: '#FF4444', sub: '2022 crash' },
+  { label: 'NIFTY', value: '-38%', color: '#FF9500', sub: 'COVID 2020' },
+  { label: 'SENSEX', value: '-60%', color: '#FF4444', sub: 'GFC 2008' },
+  { label: 'GOLD', value: '+28%', color: '#00D68F', sub: 'COVID 2020' },
+  { label: 'RECOVERY', value: '100%', color: '#00D68F', sub: 'all crashes' },
+];
+
+const STATS = [
+  { number: '₹7,000', label: 'Where ₹10,000 goes in a crash', color: '#FF4444' },
+  { number: '10Y', label: 'Nifty 50 never negative over any 10-year span', color: '#00D68F' },
+  { number: '80%', label: 'Retail investors who panic sell at the bottom', color: '#FF9500' },
+];
 
 const PATHS = [
-  {
-    id: 'zero',
-    icon: '🌱',
-    title: 'I know nothing about investing',
-    subtitle: 'Start from absolute zero. No jargon.',
-    tag: 'GROUND ZERO',
-    tagColor: 'var(--accent-green)',
-    tagBg: 'var(--accent-green-dim)',
-    description: 'We\'ll teach you everything — what a stock is, why markets crash, and how ₹500/month becomes ₹3.8L.',
-    delay: 1,
-  },
   {
     id: 'scared',
     icon: '😰',
     title: 'I know basics but I\'m scared to invest',
-    subtitle: 'Skip the lessons, face your fear directly.',
-    tag: 'FEAR MODE',
-    tagColor: 'var(--accent-amber)',
-    tagBg: 'var(--accent-amber-dim)',
-    description: 'Take the fear quiz, discover your investor personality, then simulate a real crash safely.',
-    delay: 2,
+    subtitle: 'Take the fear quiz. Discover your investor type.',
+    tag: 'MOST POPULAR',
+    tagColor: '#00D68F',
+    tagBg: 'rgba(0,214,143,0.12)',
+    description: '20 psychology questions reveal whether you\'d panic-sell, freeze, or buy the dip during a real crash.',
+    cta: 'Start Fear Assessment →',
+  },
+  {
+    id: 'zero',
+    icon: '🌱',
+    title: 'I know nothing about investing',
+    subtitle: 'Start from zero. No jargon. Just experience.',
+    tag: 'BEGINNER',
+    tagColor: '#3B82F6',
+    tagBg: 'rgba(59,130,246,0.12)',
+    description: 'Learn what stocks are, why markets crash, and how ₹500/month can become ₹3.8L — before risking a rupee.',
+    cta: 'Start from zero →',
   },
   {
     id: 'advanced',
     icon: '📉',
-    title: 'I invest but make bad decisions',
-    subtitle: 'Diagnose why. Fix it with simulation.',
+    title: 'I invest but make emotional decisions',
+    subtitle: 'Skip the quiz. Go straight to the simulator.',
     tag: 'ADVANCED',
     tagColor: '#A78BFA',
     tagBg: 'rgba(167,139,250,0.12)',
-    description: 'Skip straight to the simulator. See exactly what your panic decisions cost you in rupees.',
-    delay: 3,
+    description: 'Relive real crashes — Netflix 2022, Nifty COVID — and see exactly how much your panic decisions cost you.',
+    cta: 'Enter simulator →',
   }
 ];
 
 export default function LandingPage({ onSelectPath }) {
   const [hovered, setHovered] = useState(null);
+  const [tickerPos, setTickerPos] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setTickerPos(p => p - 1), 30);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 80 }}>
-      <div className="container">
-        {/* Hero */}
-        <div className="animate-fade-up" style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '6px 14px', borderRadius: 100,
-            background: 'var(--accent-green-dim)', border: '1px solid rgba(0,214,143,0.2)',
-            fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--accent-green)',
-            marginBottom: 28, letterSpacing: '0.1em'
-          }}>
-            ✈️ &nbsp; FLIGHT SIMULATOR FOR INVESTING
-          </div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-          <h1 style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(40px, 7vw, 80px)',
-            fontWeight: 800,
-            lineHeight: 1.0,
-            marginBottom: 20,
-            letterSpacing: '-0.03em',
-          }}>
-            Stop fearing{' '}
-            <span style={{
-              background: 'linear-gradient(135deg, var(--accent-green) 0%, #00A86B 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+      {/* Hero Section */}
+      <div style={{ paddingTop: 110, paddingBottom: 80 }}>
+        <div className="container">
+          <div className="animate-fade-up" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto' }}>
+
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 16px', borderRadius: 100,
+              background: 'rgba(255,77,77,0.1)', border: '1px solid rgba(255,77,77,0.25)',
+              fontSize: 11, fontFamily: 'var(--font-mono)', color: '#FF4D4D',
+              marginBottom: 32, letterSpacing: '0.12em'
             }}>
-              money.
-            </span>
-            <br />
-            Start living through it.
-          </h1>
+              ⚡ LIVE CRASH SIMULATOR — POWERED BY REAL MARKET DATA
+            </div>
 
-          <p style={{
-            fontSize: 18, color: 'var(--text-secondary)',
-            maxWidth: 560, margin: '0 auto 16px',
-            lineHeight: 1.7
-          }}>
-            RiskLab lets you live through real market crashes — safely —
-            before risking a single rupee. No jargon. Just experience.
-          </p>
-
-          {/* Ticker strip */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: 24, marginTop: 28, flexWrap: 'wrap'
-          }}>
-            {[
-              { label: 'Netflix 2022', value: '-76%', color: 'var(--accent-red)' },
-              { label: 'Nifty COVID', value: '-40%', color: 'var(--accent-amber)' },
-              { label: 'Recovery rate', value: '100%', color: 'var(--accent-green)' },
-            ].map(t => (
-              <div key={t.label} style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 16px', borderRadius: 8,
-                background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+            <h1 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(38px, 7vw, 82px)',
+              fontWeight: 900,
+              lineHeight: 0.95,
+              marginBottom: 28,
+              letterSpacing: '-0.03em',
+            }}>
+              Most investors{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #FF4444 0%, #FF9500 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
               }}>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                  {t.label}
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'var(--font-mono)', color: t.color }}>
-                  {t.value}
-                </span>
+                panic sell.
+              </span>
+              <br />
+              Will you?
+            </h1>
+
+            <p style={{
+              fontSize: 19, color: 'var(--text-secondary)',
+              maxWidth: 540, margin: '0 auto 16px',
+              lineHeight: 1.65
+            }}>
+              Experience real market crashes safely. Discover your investor psychology.
+              See exactly what fear costs you — in rupees.
+            </p>
+
+            {/* Ticker Strip */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              justifyContent: 'center', marginTop: 36, flexWrap: 'wrap'
+            }}>
+              {TICKER_ITEMS.map(t => (
+                <div key={t.label} style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 16px', borderRadius: 8,
+                  background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+                }}>
+                  <div>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', display: 'block' }}>{t.label}</span>
+                    <span style={{ fontSize: 12, color: t.color, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{t.value}</span>
+                  </div>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{t.sub}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Bar */}
+      <div style={{
+        borderTop: '1px solid var(--border-subtle)',
+        borderBottom: '1px solid var(--border-subtle)',
+        padding: '28px 0',
+        background: 'rgba(255,255,255,0.01)',
+      }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
+            {STATS.map((s, i) => (
+              <div key={i} style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 900,
+                  color: s.color, lineHeight: 1, marginBottom: 8
+                }}>{s.number}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.4 }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Path selection */}
-        <div style={{ marginBottom: 24 }}>
-          <p style={{
-            fontSize: 12, color: 'var(--text-muted)',
-            fontFamily: 'var(--font-mono)',
-            textAlign: 'center', marginBottom: 24,
-            letterSpacing: '0.08em'
-          }}>
-            — FIRST, WHO ARE YOU? —
-          </p>
+      {/* Path Selection */}
+      <div style={{ paddingTop: 70, paddingBottom: 80 }}>
+        <div className="container">
+          <div className="animate-fade-up" style={{ textAlign: 'center', marginBottom: 48 }}>
+            <p style={{
+              fontSize: 12, color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', marginBottom: 14
+            }}>
+              — CHOOSE YOUR PATH —
+            </p>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,36px)', fontWeight: 800, lineHeight: 1.2 }}>
+              Where do you start?
+            </h2>
+          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-            {PATHS.map((path) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, maxWidth: 1040, margin: '0 auto' }}>
+            {PATHS.map((path, idx) => (
               <button
                 key={path.id}
                 onClick={() => onSelectPath(path.id)}
                 onMouseEnter={() => setHovered(path.id)}
                 onMouseLeave={() => setHovered(null)}
-                className={`animate-fade-up animate-delay-${path.delay}`}
                 style={{
                   background: hovered === path.id ? 'var(--bg-card-hover)' : 'var(--bg-card)',
                   border: `1px solid ${hovered === path.id ? 'rgba(255,255,255,0.14)' : 'var(--border-card)'}`,
-                  borderRadius: 'var(--radius-lg)',
-                  padding: 28,
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  transition: 'var(--transition)',
-                  transform: hovered === path.id ? 'translateY(-4px)' : 'none',
-                  boxShadow: hovered === path.id ? '0 20px 40px rgba(0,0,0,0.3)' : 'none',
+                  borderRadius: 'var(--radius-lg)', padding: 28, textAlign: 'left',
+                  cursor: 'pointer', transition: 'var(--transition)',
+                  transform: hovered === path.id ? 'translateY(-6px)' : 'none',
+                  boxShadow: hovered === path.id ? '0 24px 48px rgba(0,0,0,0.4)' : 'none',
+                  position: 'relative', overflow: 'hidden',
                 }}
               >
-                <div style={{ fontSize: 36, marginBottom: 14 }}>{path.icon}</div>
-
+                {hovered === path.id && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: `radial-gradient(circle at 50% 0%, ${path.tagColor}08, transparent 70%)`,
+                    pointerEvents: 'none',
+                  }} />
+                )}
+                <div style={{ fontSize: 40, marginBottom: 16 }}>{path.icon}</div>
                 <div style={{
-                  display: 'inline-block',
-                  padding: '3px 10px', borderRadius: 100,
+                  display: 'inline-block', padding: '3px 10px', borderRadius: 100,
                   background: path.tagBg, color: path.tagColor,
-                  fontSize: 10, fontFamily: 'var(--font-mono)',
-                  fontWeight: 600, letterSpacing: '0.1em',
-                  marginBottom: 12,
+                  fontSize: 10, fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.1em',
+                  marginBottom: 14,
                 }}>
                   {path.tag}
                 </div>
-
                 <h3 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 18, fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  marginBottom: 6, lineHeight: 1.3
-                }}>
-                  {path.title}
-                </h3>
-
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.5 }}>
+                  fontFamily: 'var(--font-display)', fontSize: 19, fontWeight: 700,
+                  color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1.3
+                }}>{path.title}</h3>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20, lineHeight: 1.6 }}>
                   {path.description}
                 </p>
-
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  fontSize: 13, color: path.tagColor, fontWeight: 500
+                  fontSize: 13, color: path.tagColor, fontWeight: 600
                 }}>
-                  Start here →
+                  {path.cta}
                 </div>
               </button>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Bottom stats */}
-        <div className="animate-fade-up animate-delay-4" style={{
-          display: 'flex', gap: 24, justifyContent: 'center',
-          flexWrap: 'wrap', paddingTop: 40, paddingBottom: 40,
-          borderTop: '1px solid var(--border-subtle)'
-        }}>
-          {[
-            { number: '₹500', label: 'minimum to start investing' },
-            { number: '10Y', label: 'zero negative returns in Nifty 50' },
-            { number: '3', label: 'investor personalities identified' },
-          ].map(s => (
-            <div key={s.label} style={{ textAlign: 'center' }}>
-              <div style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 28, fontWeight: 800,
-                color: 'var(--accent-green)', lineHeight: 1
-              }}>
-                {s.number}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, maxWidth: 140 }}>
-                {s.label}
-              </div>
-            </div>
-          ))}
+      {/* Social proof / footer */}
+      <div style={{
+        borderTop: '1px solid var(--border-subtle)',
+        padding: '32px 0', textAlign: 'center',
+        background: 'rgba(255,255,255,0.01)',
+      }}>
+        <div className="container">
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+            RiskLab — Behavioral Finance Simulator · Built for Finvasia Innovation Hackathon 2026<br/>
+            <span style={{ fontSize: 11 }}>Not financial advice. All scenarios use historical market data for educational simulation.</span>
+          </p>
         </div>
       </div>
     </div>
