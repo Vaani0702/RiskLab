@@ -53,7 +53,7 @@ RiskLab is a **risk simulation sandbox** that lets you experience real historica
 
 ```bash
 # Clone the repo
-git clone https://github.com/<your-team>/risklab.git
+git clone https://github.com/Bold-Rupee/risklab.git
 cd risklab
 
 # Install dependencies
@@ -83,7 +83,6 @@ pip install -r requirements.txt
 # Run FastAPI server
 uvicorn main:app --reload
 ```
-
 API will be live at `http://localhost:8000`
 
 ---
@@ -117,13 +116,8 @@ risklab/
 
 ## Team
 
-Built by **[Your Team Name]** for Finvasia Innovation Hackathon 2026
+Built by **[BoldRupee]** for Finvasia Innovation Hackathon 2026
 - Chitkara University · CSE (AI) Department
 
----
-
-## Contact
-
-evolveai@chitkara.edu.in · Goyam Jain: 97815-31234
 
 ⚠️ *This is a simulation tool for financial education. Not financial advice.*
