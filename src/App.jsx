@@ -23,6 +23,7 @@ function AppInner() {
   const [stockId, setStockId] = useState(null);
   const [decision, setDecision] = useState(null);
   const [simHistory, setSimHistory] = useState([]);
+  const [lastSimResult, setLastSimResult] = useState(null);
 
   const page = history[idx];
   const canGoBack = idx > 0;
@@ -45,6 +46,26 @@ function AppInner() {
 
   const activePage = TOP_PAGES.includes(page) ? page : 'simulator';
 
+  // Handle simulator complete — receives full result object
+  const handleSimComplete = (dec, result) => {
+    const d = dec || result?.decision || 'hold';
+    const sid = result?.stockId || stockId;
+    setDecision(d);
+    setLastSimResult(result);
+    const entry = {
+      stockId: sid,
+      profile,
+      decision: d,
+      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      investment: result?.investment,
+      finalValue: result?.finalValue,
+      pnl: result?.pnl,
+      returnPct: result?.returnPct,
+    };
+    setSimHistory(prev => [...prev, entry]);
+    push('lossmeter');
+  };
+
   return (
     <>
       <div className="orb orb-1" />
@@ -55,18 +76,13 @@ function AppInner() {
         {page === 'groundzero' && <GroundZeroPage onComplete={() => push('fearquiz')} onNavigate={push} />}
         {page === 'fearquiz'   && <FearQuizPage onComplete={(p) => { setProfile(p); push('stockpick'); }} />}
         {page === 'stockpick'  && <StockPickerPage profile={profile} onSelect={(sid) => { setStockId(sid); push('simulate'); }} />}
-        {page === 'simulate'   && <SimulatorPage profile={profile} stockId={stockId} onComplete={(dec) => {
-          const d = dec || 'hold';
-          setDecision(d);
-          setSimHistory(prev => [...prev, { stockId, profile, decision: d, date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }]);
-          push('lossmeter');
-        }} />}
-        {page === 'lossmeter'  && <LossMeterPage stockId={stockId} onComplete={() => push('debrief')} />}
-        {page === 'debrief'    && <DebriefPage profile={profile} stockId={stockId} decision={decision} onRestart={() => { setProfile(null); setStockId(null); setDecision(null); push('home'); }} />}
-        {page === 'simulator'  && <LandingPage onSelectPath={startSimulator} />}
+        {page === 'simulate'   && <SimulatorPage profile={profile} stockId={stockId} onComplete={handleSimComplete} />}
+        {page === 'simulator'  && <SimulatorPage profile={profile} stockId={null} onComplete={handleSimComplete} />}
+        {page === 'lossmeter'  && <LossMeterPage stockId={lastSimResult?.stockId || stockId} onComplete={() => push('debrief')} />}
+        {page === 'debrief'    && <DebriefPage profile={profile} stockId={lastSimResult?.stockId || stockId} decision={decision} onRestart={() => { setProfile(null); setStockId(null); setDecision(null); push('home'); }} />}
         {page === 'learn'      && <LearnPage onNavigate={push} />}
         {page === 'markets'    && <MarketsPage onNavigate={push} />}
-        {page === 'profile'    && <ProfilePage simHistory={simHistory} onStartNew={() => push('home')} onNavigate={push} />}
+        {page === 'profile'    && <ProfilePage simHistory={simHistory} onStartNew={() => push('simulator')} onNavigate={push} />}
         {page === 'history'    && <HistoryPage onNavigate={push} />}
       </div>
     </>
