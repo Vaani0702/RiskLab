@@ -44,9 +44,6 @@ function AppInner() {
     else { setProfile('calculated'); push('stockpick'); }
   };
 
-  const activePage = TOP_PAGES.includes(page) ? page : 'simulator';
-
-  // Handle simulator complete — receives full result object
   const handleSimComplete = (dec, result) => {
     const d = dec || result?.decision || 'hold';
     const sid = result?.stockId || stockId;
@@ -66,11 +63,20 @@ function AppInner() {
     push('lossmeter');
   };
 
+  const activePage = TOP_PAGES.includes(page) ? page : 'simulator';
+
   return (
     <>
       <div className="orb orb-1" />
       <div className="orb orb-2" />
-      <Navbar activePage={activePage} onNavigate={push} canGoBack={canGoBack} canGoForward={canGoForward} onBack={goBack} onForward={goForward} />
+      <Navbar
+        activePage={activePage}
+        onNavigate={push}
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        onBack={goBack}
+        onForward={goForward}
+      />
       <div>
         {page === 'home'       && <LandingPage onSelectPath={startSimulator} />}
         {page === 'groundzero' && <GroundZeroPage onComplete={() => push('fearquiz')} onNavigate={push} />}
@@ -78,12 +84,34 @@ function AppInner() {
         {page === 'stockpick'  && <StockPickerPage profile={profile} onSelect={(sid) => { setStockId(sid); push('simulate'); }} />}
         {page === 'simulate'   && <SimulatorPage profile={profile} stockId={stockId} onComplete={handleSimComplete} />}
         {page === 'simulator'  && <SimulatorPage profile={profile} stockId={null} onComplete={handleSimComplete} />}
-        {page === 'lossmeter'  && <LossMeterPage stockId={lastSimResult?.stockId || stockId} onComplete={() => push('debrief')} />}
-        {page === 'debrief'    && <DebriefPage profile={profile} stockId={lastSimResult?.stockId || stockId} decision={decision} onRestart={() => { setProfile(null); setStockId(null); setDecision(null); push('home'); }} />}
-        {page === 'learn'      && <LearnPage onNavigate={push} />}
-        {page === 'markets'    && <MarketsPage onNavigate={push} />}
-        {page === 'profile'    && <ProfilePage simHistory={simHistory} onStartNew={() => push('simulator')} onNavigate={push} />}
-        {page === 'history'    && <HistoryPage onNavigate={push} />}
+        {page === 'lossmeter'  && (
+          <LossMeterPage
+            stockId={lastSimResult?.stockId || stockId}
+            investment={lastSimResult?.investment || 100000}
+            onComplete={() => push('debrief')}
+          />
+        )}
+        {page === 'debrief' && (
+          <DebriefPage
+            profile={profile}
+            stockId={lastSimResult?.stockId || stockId}
+            decision={decision}
+            investment={lastSimResult?.investment}
+            finalValue={lastSimResult?.finalValue}
+            pnl={lastSimResult?.pnl}
+            returnPct={lastSimResult?.returnPct}
+            onRestart={() => {
+              setProfile(null);
+              setStockId(null);
+              setDecision(null);
+              push('home');
+            }}
+          />
+        )}
+        {page === 'learn'   && <LearnPage onNavigate={push} />}
+        {page === 'markets' && <MarketsPage onNavigate={push} />}
+        {page === 'profile' && <ProfilePage simHistory={simHistory} onStartNew={() => push('simulator')} onNavigate={push} />}
+        {page === 'history' && <HistoryPage onNavigate={push} />}
       </div>
     </>
   );
