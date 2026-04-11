@@ -1,4 +1,4 @@
-# RiskLab 🚀
+# RiskLab 
 ### The Flight Simulator for Investing
 
 > "RiskLab doesn't show you the numbers. It makes you live through a crash safely."

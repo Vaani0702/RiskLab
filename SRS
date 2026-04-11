@@ -1,0 +1,187 @@
+SRS.md copy-paste ready
+Copy all
+# RiskLab — SRS
+
+> Flight simulator for investing. You experience the crash, make the call, see what happened.
+
+**Team:** Bold Rupee — Vaani Singh · Niyati Aggarwal  
+**Hackathon:** Finvasia Innovation Hackathon 2026, PS3  
+**Stack:** React 18 + FastAPI + Anthropic Claude API  
+**Version:** 1.0
+
+---
+
+## What it is
+
+Most young Indian investors don't invest because they're scared, not because they're broke or uninformed. RiskLab puts them through a simulated crash — Netflix 2022, Nifty 50 COVID, Gold ETF — so they've "felt" the drop before they ever put in real money.
+
+Not a course. Not a quiz. A simulator.
+
+---
+
+## How it works
+
+Three ways in depending on where the user is:
+
+- **Ground Zero** — complete beginner, goes through a short education module first
+- **Fear Mode** — knows the basics, scared to invest, jumps straight to the quiz
+- **Advanced** — already investing, skips straight to the simulator
+
+After entry, everyone hits the same flow:
+
+```
+Quiz → Asset Picker → Crash Replay → Sell or Hold → Monte Carlo → AI Debrief
+```
+
+---
+
+## Features
+
+### Investor profile quiz
+20 questions across 7 areas: loss reaction, risk appetite, monitoring behavior, pressure decisions, financial knowledge, emotional triggers, long-term thinking. Each answer scores across three dimensions (panic / cautious / calculated). Result: one of three profiles — Panic Seller, Cautious Holder, Calculated Risk-Taker.
+
+### Crash simulator
+Pick an asset and a virtual investment amount (₹10k to ₹5L). Watch the chart animate week by week. News events pop up as they happened. At your profile's panic threshold, playback stops — you choose Sell or Hold. Either way you see both outcomes side by side in rupees.
+
+Assets:
+- Netflix NFLX 2022 — 36 weeks, −74% drawdown
+- Nifty 50 COVID 2020 — 28 weeks, −38%
+- Gold ETF COVID 2020 — 8 data points, −4%
+
+### Monte Carlo risk meter
+1,000 simulated 5-year trajectories. Results bucketed into three zones (Chill / Uncomfortable / Worst Case). 10th / 50th / 90th percentile outcomes shown in rupees. Compared against an equivalent FD at 6.5% p.a.
+
+### AI debrief (Claude API)
+After the sim, Claude gets your profile, asset, decision, quiz score, investment amount, and both outcome values. It returns a structured read: what your psychology did, what it cost you, what your blind spot is, what to do about it. Falls back to pre-written responses if the API is down.
+
+### Markets dashboard
+Six Indian market indicators, an India market facts panel, curated news feed, historical crash log table.
+
+### Learn / glossary
+23+ financial terms with expandable explanations and Indian market examples. Searchable and filterable by category. Four investor strategy profiles with risk level, time horizon, and implementation steps.
+
+### User accounts
+Register + login (bcrypt passwords, JWT auth). Profile page shows total P&L, hold vs. sell ratio, full simulation history. Simulation works without an account — auth just unlocks history.
+
+---
+
+## Architecture
+
+```
+React SPA  ──REST──►  FastAPI  ──HTTPS──►  Anthropic Claude API
+```
+
+The frontend handles everything — quiz scoring, chart animation, simulation — entirely client-side. The backend only gets called for Monte Carlo, AI debrief, and auth.
+
+**Fallbacks:**
+- Monte Carlo: client-side JS fallback using the same Box-Muller algorithm
+- Debrief: pre-authored (profile × decision) matrix if Claude API is unavailable
+- API key is never in the client bundle — all Anthropic calls go through the backend proxy
+
+### API endpoints
+
+| Endpoint | Method | What it does |
+|---|---|---|
+| `/api/simulation/{stockId}` | GET | Weekly price series + event annotations |
+| `/api/montecarlo` | POST | Runs 1,000 scenarios, returns distribution |
+| `/api/debrief` | POST | Calls Claude, returns behavioral analysis JSON |
+| `/api/auth/login` | POST | Returns JWT |
+| `/api/auth/me` | GET | Validates token, returns user |
+| `/api/history` | POST | Saves completed simulation |
+
+### Frontend files
+
+| File | Does what |
+|---|---|
+| `App.jsx` | State + routing |
+| `LandingPage.jsx` | Three entry paths |
+| `FearQuizPage.jsx` | Quiz + profile scoring |
+| `StockPickerPage.jsx` | Asset selection |
+| `SimulatorPage.jsx` | Crash animation + decision modal |
+| `LossMeterPage.jsx` | Monte Carlo chart |
+| `DebriefPage.jsx` | AI analysis + SIP calculator |
+| `MarketsPage.jsx` | Dashboard |
+| `LearnPage.jsx` | Glossary + strategy profiles |
+| `ProfilePage.jsx` | User history |
+| `api.js` | All backend calls |
+| `marketData.js` | All historical data, quiz questions, profiles |
+
+---
+
+## Monte Carlo parameters
+
+| Asset | Annual return (μ) | Annual volatility (σ) |
+|---|---|---|
+| Netflix NFLX | 22% | 55% |
+| Nifty 50 | 12% | 18% |
+| Gold ETF | 8% | 14% |
+
+Assumes normally distributed weekly returns. This underestimates fat-tail risk — known limitation.
+
+---
+
+## Claude API integration
+
+```
+Model:      claude-sonnet-4-20250514
+Endpoint:   https://api.anthropic.com/v1/messages
+Max tokens: 1,000
+Auth:       x-api-key header, backend only
+```
+
+Response JSON shape:
+```json
+{
+  "headline": "...",
+  "psychologyRead": "...",
+  "costOfEmotion": "...",
+  "blindSpot": "...",
+  "strengthToLeverage": "...",
+  "actionPlan": ["...", "...", "..."],
+  "motivationalClose": "..."
+}
+```
+
+Headline renders with a typewriter animation (30ms/char). Full fallback matrix exists for all 6 profile × decision combos.
+
+---
+
+## Design tokens
+
+```
+Background:  #090B0F
+Card:        #12161E
+Green:       #00D68F
+Amber:       #FFB800
+Red:         #FF4D4D
+Headings:    Syne
+Body:        DM Sans
+Numbers:     DM Mono
+```
+
+Dark mode only. All monetary values in `en-IN` locale (lakhs/crores).
+
+---
+
+## Requirements and constraints
+
+- Browser: Chrome 100+, Firefox 100+, Safari 15+, Edge 100+
+- Deployment needs outbound HTTPS to `api.anthropic.com`
+- No live data feeds — everything is static historical data in `marketData.js`
+- Adding a new crash dataset only requires changes in `marketData.js`
+- Production hardening (rate limiting, DB migrations, CI/CD) is v2.0 scope
+
+**Performance targets:**
+- Page load < 3s on 10 Mbps
+- Chart animation ≥ 30 fps
+- Monte Carlo median stable within ±5% across identical runs
+- A new user completes a full sim in under 10 minutes
+
+---
+
+## What's not in v1.0
+
+- Real-money trading or brokerage integration
+- Live market data
+- Native iOS / Android apps
+- Multi-language support
