@@ -17,13 +17,7 @@ RiskLab is a **risk simulation sandbox** that lets you experience real historica
 
 ---
 
-## Live Demo
 
-- **Frontend:** https://risklab.vercel.app
-- **Backend API:** https://risklab-backend.onrender.com
-- **API Docs:** https://risklab-backend.onrender.com/docs
-
----
 
 ## Key Features
 
